@@ -1,0 +1,233 @@
+
+import java.util.Scanner;
+
+	public class Celluer_Automaton
+	{
+	   public static void main(String[] args)
+	   {
+	      int rule, k;
+	      String strUserIn;
+	      
+	      Scanner inputStream = new Scanner(System.in);
+	      Automaton aut;
+	      // get rule from user
+	      do
+	      {
+	         System.out.print("Enter Rule (0 - 255): ");
+	         // get the answer in the form of a string:
+	         strUserIn = inputStream.nextLine();
+	         // and convert it to a number so we can compute:
+	         rule = Integer.parseInt(strUserIn);
+	      } 
+	      while (rule < 0 || rule > 255);
+	      // create automaton with this rule and single central dot
+	      aut = new Automaton(rule);
+	      // now show it
+	      System.out.println("   start");
+	      for (k = 0; k < 100; k++)
+	      {
+	         System.out.println( aut.toStringCurrentGen() );
+	         aut.propagateNewGeneration();
+	      }
+	      System.out.println("   end");
+	      inputStream.close();
+	      
+	   }
+	}
+
+	class Automaton
+	{
+	   // class constants
+	   public final static int MAX_DISPLAY_WIDTH = 121;//maximum width 
+	   public final static char SPACE= ' ', ASTERISK = '*';//manager of ' ' and '*' 
+	   public final static int DEFAULT_RULE =30; // default value of rule 
+	                                       
+	   
+	   // private members
+	   private boolean rules[];  // allocate rules[8] in constructor!
+	   private String thisGen;   // same here
+	   String extremeBit; // bit, "*" or " ", implied everywhere "outside"
+	   int displayWidth;  // an odd number so it can be perfectly centered
+	   
+	   // public constructors 
+	   public Automaton(int new_rule)
+	   {
+	   	//if a bad number was passed as new_rule...
+	   	if(new_rule<0||new_rule>255)
+	   	{
+	   	  rules = new boolean[8];
+	   	  SetRule(DEFAULT_RULE);//set it to defaltValue
+	   	  resetFirstGen();
+	   	  setDisplayWidth(79);
+	   	}
+	   	else
+	   	{
+	   		rules = new boolean[8];
+	   	   resetFirstGen();
+	   	   SetRule(new_rule);
+	   	   setDisplayWidth(79);
+	   	}
+	   }
+	   //setter method(mutator)
+	   public void resetFirstGen()
+	   {
+	   	thisGen =""+ASTERISK;
+	   	extremeBit=""+SPACE;
+	   }
+	   
+	   // distribute each binary of selected integer into boolean array
+	   public boolean SetRule(int new_rule)
+	   {
+	   	if(new_rule<0||new_rule>255)
+	   		return false;
+	   	for(int i =0; i<rules.length;i++)
+	   	{
+	   		if(new_rule%2==0)
+	   		{
+	   			rules[rules.length-1-i]=false;
+	   		}
+	   		else if(new_rule%2==1)
+	   		{
+	   			rules[rules.length-1-i]=true;
+	   		}
+	            new_rule/=2;
+	   	}
+	   	return true;
+	   }
+	   
+	   public boolean setDisplayWidth(int width)
+	   {
+	      if(width<0||width>MAX_DISPLAY_WIDTH)
+	      {
+	      	return false;
+	      }
+	      if(width%2==0)
+	      {
+	      	return false;
+	      }
+	      else
+	         displayWidth = width; 
+	         return true;
+	   }
+	   //print out some like "*** ** * "
+	   public String toStringCurrentGen()
+	   {
+	   	String returnVal ="";
+	   	
+	   	if(thisGen.length()<displayWidth)
+	   	{
+	   		int num = (displayWidth-thisGen.length())/2;
+	   		returnVal =thisGen;
+	   		
+	   		for(int k =0;k<num;k++)
+	   		{
+	   			returnVal = extremeBit+returnVal+extremeBit; 
+	   		}
+	   		
+	   	}
+	   	else if(thisGen.length()>displayWidth)
+	   	{
+	   		int excess = (thisGen.length()-displayWidth)/2; 
+	   		
+	   		returnVal = thisGen.substring((excess), displayWidth+excess); 
+	   	}
+	   	else
+	   	{
+	   		returnVal = thisGen;
+	   	}
+	   	return returnVal;
+	   }
+	   //compute the next gen based on the rule and current gen  
+	   public void propagateNewGeneration()
+	   {
+	   	String temp =extremeBit + extremeBit +
+	   			         thisGen + extremeBit + extremeBit;
+	   	
+	   	String newVal ="";
+	   	for(int i=1; i<temp.length()-1;i++)
+	   	{
+	   		char e1 = temp.charAt(i-1);
+	   		char e2 = temp.charAt(i);
+	   		char e3 = temp.charAt(i+1);
+	   		
+	   		//case 000
+	   		if(e1 ==SPACE&&e2==SPACE&&e3==SPACE)
+	   		{
+	   			if(rules[7])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   		//case 001
+	   		if(e1 ==SPACE&&e2==SPACE&&e3==ASTERISK)
+	   		{
+	   			if(rules[6])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   		//case 010
+	   		if(e1 ==SPACE&&e2==ASTERISK&&e3==SPACE)
+	   		{
+	   			if(rules[5])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   		//case 011
+	   		if(e1 ==SPACE&&e2==ASTERISK&&e3==ASTERISK)
+	   		{
+	   			if(rules[4])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   	// case 100
+	   		if(e1 ==ASTERISK&&e2==SPACE&&e3==SPACE)
+	   		{
+	   			
+	   			if(rules[3])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   		//case 101
+	   		if(e1 ==ASTERISK&&e2==SPACE&&e3==ASTERISK)
+	   		{
+	   			
+	   			if(rules[2])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   		//case 110
+	   		if(e1 ==ASTERISK&&e2==ASTERISK&&e3==SPACE)
+	   		{   			
+	   			if(rules[1])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   		//case 111
+	   		if(e1 ==ASTERISK&&e2==ASTERISK&&e3==ASTERISK)
+	   		{
+	   			if(rules[0])
+	              newVal += ""+ASTERISK;
+	   			else
+	   			  newVal +=""+SPACE;
+	   		}
+	   	}
+
+	   	
+	   	if(rules[7]&&extremeBit.equals(" "))
+	   	{
+	   	   extremeBit = ""+ASTERISK;
+	   	}
+	   	else if(!rules[0]&&extremeBit.equals("*"))
+	   	{	
+	   		extremeBit = ""+SPACE;
+	   	}
+	   
+	   	thisGen = newVal;
+	   }
+	}
