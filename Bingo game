@@ -1,0 +1,256 @@
+import java.util.*;
+public class Foothill
+{
+   public static void main(String[] args)
+   {
+      BingoCard card1 = new BingoCard();
+      card1.allocateNum();
+      System.out.println("    <card1>");
+      System.out.println(card1.showCard());
+      
+      Bingo bingo = new Bingo(card1,100);
+      //loop until we get a bingo
+      while(!bingo.checkBingo())
+      {
+         int lucky = bingo.draw();
+         bingo.checkNum(lucky);
+         System.out.println(bingo.card.showCard());
+      }
+   }
+}
+
+class BingoCard
+{
+   static final int width = 5;
+   static final int column = 5;
+   int[][] card;
+   int [] numSlot; 
+   
+   public BingoCard()
+   {
+      card = new int [width][column];
+      numSlot = new int[25];
+      allocateNum();
+   }
+   // allocate random number into 2D array 
+   public void allocateNum()
+   {
+      
+      Random rnd = new Random();
+      for(int i = 0; i < 25; i++)
+      {
+         numSlot[i] = rnd.nextInt(75)+1;
+         int x = numSlot[i];
+         for( i  = 0; i < 25 ; i++)
+         {
+             if(numSlot[i] == x)
+                break;
+         }
+      }
+      // allocate ints 
+      for(int j = 0; j < 5; j++)
+      {
+         for(int k = 0; k < 5; k++)
+         {
+            card[j][k] = numSlot[(k*5) + j];
+         }
+      }
+      card[2][2] = 00; // center free space
+   }
+   public String showCard()
+   {
+      String mass = "----------------"+"\n";
+      for(int i = 0; i < 5; i++)
+      {
+         for(int k = 0; k < 5; k++)
+         {
+            mass += "|";
+            
+            if(card[i][k]<10)
+               mass += "0"+card[i][k];
+            else
+            mass += card[i][k];
+         }
+         mass += "|"+"\n"+"----------------"+"\n";
+      }
+      return mass;
+   }
+}
+class Bingo
+{
+   BingoCard card;
+   int [] history;
+   int numTimes; //counter for drewing times 
+   int numChance; //the number of times to draw lottery numbers
+   
+   
+   public Bingo(BingoCard card,int numChance)
+   {
+      this.card = card;
+      this.numTimes = 0;
+      this.numChance = numChance;
+      history = new int[numChance];
+   }
+   // get a random number(luckynumber) and check if bingo card
+   public int draw()
+   {
+      int i;
+      int luckyNum;
+      do
+      {
+         Random rnd = new Random();
+          luckyNum = rnd.nextInt(75)+1;
+         for(i = 0; i < numTimes; i++)
+         {
+            if(history[i] == luckyNum)
+               break;
+         }
+      }
+      while(history[i] == luckyNum);
+      {
+         history[numTimes] = luckyNum;
+         numTimes++;
+      }
+      
+      System.out.println(numTimes+ " th challenges....out of "+ numChance+'\n'
+                            + "LuckyNumber is......"+luckyNum+" !!!!!"+"\n");
+      
+      return luckyNum;
+   }
+   //check if bingo card has bingo
+   public void checkNum(int luckynum)
+   {
+      for(int i = 0; i < 5; i++)
+      {
+         for(int k = 0; k < 5; k++)
+         {
+            if(luckynum == card.card[i][k])
+               card.card[i][k] = 00;
+         }
+      }
+   }
+   public boolean checkBingo()
+   {
+      //vertical-case 1
+      if(card.card[0][0] == 00 && 
+         card.card[1][0] == 00 &&
+         card.card[2][0] == 00 &&
+         card.card[3][0] == 00 &&
+         card.card[4][0] == 00 )
+      {
+         System.out.println("B*I*N*G*O");
+         return true;
+      }
+      //vertical-case2
+      if(card.card[0][1] == 00 && 
+         card.card[1][1] == 00 &&
+         card.card[2][1] == 00 &&
+         card.card[3][1] == 00 &&
+         card.card[4][1] == 00)
+      {
+         System.out.println("B*I*N*G*O");
+         return true;
+      }
+         
+      //vertical-case3
+      if(card.card[0][2] == 00 && 
+         card.card[1][2] == 00 &&
+         card.card[2][2] == 00 &&
+         card.card[3][2] == 00 &&
+         card.card[4][2] == 00)
+      {
+         System.out.println("B*I*N*G*O");
+         return true;
+      }
+      //vertical-case4
+      if(card.card[0][3] == 00 && 
+         card.card[1][3] == 00 &&
+         card.card[2][3] == 00 &&
+         card.card[3][3] == 00 &&
+         card.card[4][3] == 00)
+      {
+         System.out.println("B*I*N*G*O");
+         return true;
+      }
+      //vertical-case5
+      if(card.card[0][4] == 00 && 
+         card.card[1][4] == 00 &&
+         card.card[2][4] == 00 &&
+         card.card[3][4] == 00 &&
+         card.card[4][4] == 00)
+      {
+         System.out.println("B*I*N*G*O");
+         return true;
+      }
+      //horizon-case1
+      if(card.card[0][0] == 00 && 
+         card.card[0][1] == 00 &&
+         card.card[0][2] == 00 &&
+         card.card[0][3] == 00 &&
+         card.card[0][4] == 00)
+         {
+            System.out.println("B*I*N*G*O");
+            return true;
+         }
+      //horizon-case2
+      if(card.card[1][0] == 00 && 
+         card.card[1][1] == 00 &&
+         card.card[1][2] == 00 &&
+         card.card[1][3] == 00 &&
+         card.card[1][4] == 00)
+         {
+            System.out.println("!!!!!!!!!!!!B*I*N*G*O!!!!!!!!!!!!");
+            return true;
+         }
+      //horizon-case3
+      if(card.card[2][0] == 00 && 
+         card.card[2][1] == 00 &&
+         card.card[2][2] == 00 &&
+         card.card[2][3] == 00 &&
+         card.card[2][4] == 00)
+         {
+            System.out.println("B*I*N*G*O");
+            return true;
+         }
+      //horizon-case4
+      if(card.card[3][0] == 00 && 
+         card.card[3][1] == 00 &&
+         card.card[3][2] == 00 &&
+         card.card[3][3] == 00 &&
+         card.card[3][4] == 00)
+         {
+            System.out.println("B*I*N*G*O");
+            return true;
+         }
+      //horizon-case5
+      if(card.card[4][0] == 00 && 
+         card.card[4][1] == 00 &&
+         card.card[4][2] == 00 &&
+         card.card[4][3] == 00 &&
+         card.card[4][4] == 00)
+         {
+            System.out.println("B*I*N*G*O");
+            return true;
+         }
+      //diagonal-case1
+      if(card.card[0][0] == 00 && 
+         card.card[1][1] == 00 &&
+         card.card[3][3] == 00 &&
+         card.card[4][4] == 00)
+         {
+            System.out.println("B*I*N*G*O");
+            return true;
+         }
+      //diagonal-case2
+      if(card.card[0][4] == 00 && 
+         card.card[1][3] == 00 &&
+         card.card[3][1] == 00 &&
+         card.card[4][0] == 00)
+         {
+            System.out.println("B*I*N*G*O");
+            return true;
+         }
+      return false;
+   }
+}
+
